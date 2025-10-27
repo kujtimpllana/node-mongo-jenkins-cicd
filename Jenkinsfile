@@ -29,7 +29,8 @@ pipeline {
             steps {
                 echo "Building docker image..."
                 sh "cd ./api"
-                sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ."
+                sh "ls"
+                sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ./api"
             }
         }
         stage('Jest testing') {
