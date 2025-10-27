@@ -9,9 +9,9 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            when {
-                changeset "api/**"
-            }
+            // when {
+            //     changeset "api/**"
+            // }
             steps {
                 echo "Checking out into GitHub Repo..."
                 git branch: "main",
