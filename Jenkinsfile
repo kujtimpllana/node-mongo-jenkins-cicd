@@ -9,9 +9,12 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            // when {
-            //     changeset "api/**"
-            // }
+            when {
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
+            }
             steps {
                 echo "Checking out into GitHub Repo..."
                 git branch: "main",
@@ -21,7 +24,10 @@ pipeline {
         }
         stage('Build Docker Image') {
             when {
-                changeset "**/api/**"
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
             }
             steps {
                 echo "Building docker image..."
@@ -31,7 +37,10 @@ pipeline {
         }
         stage('Jest testing') {
             when {
-                changeset "api/**"
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
             }
             steps {
                 echo "Running Jest unit tests..."
@@ -48,7 +57,10 @@ pipeline {
         }
         stage('Push to Docker Hub') {
             when {
-                changeset "**/api/**"
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
@@ -61,7 +73,10 @@ pipeline {
         }
         stage('Deploy to local K8s') {
             when {
-                changeset "api/**"
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
             }
             steps {
                 echo "Deploying to local K8s cluster..."
