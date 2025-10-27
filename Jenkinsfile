@@ -43,7 +43,7 @@ pipeline {
             steps {
                 echo "Running Jest unit tests..."
                 sh "cd ./api"
-                sh "docker run --rm -v $DOCKER_IMAGE:$IMAGE_TAG npm test"
+                sh "docker run --rm $DOCKER_IMAGE:$IMAGE_TAG npm test"
             }
             post {
                 always {

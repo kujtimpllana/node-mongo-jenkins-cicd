@@ -5,20 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "jest"
-  },
-  "jest-junit": {
-    "outputFile": "jest-junit.xml",
-    "outputDirectory": "."
-  },
-  "jest": {
-    "testResultsProcessor": "jest-junit"
+    "test": "mocha"
   },
   "dependencies": {
     "express": "^4",
     "mongoose": "^8",
     "dotenv": "^16",
-    "jest": "^30.2.0",
-    "jest-junit": "^16.0.0"
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7"
   }
 }
