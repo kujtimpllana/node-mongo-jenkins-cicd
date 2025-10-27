@@ -15,11 +15,15 @@ pipeline {
                     triggeredBy 'UserIdCause'
                 }
             }
+            // steps {
+            //     echo "Checking out into GitHub Repo..."
+            //     git branch: "main",
+            //     url: "https://github.com/kujtimpllana/node-mongo-jenkins-cicd.git",
+            //     credentialsId: "github-creds"
+            // }
+
             steps {
-                echo "Checking out into GitHub Repo..."
-                git branch: "main",
-                url: "https://github.com/kujtimpllana/node-mongo-jenkins-cicd.git",
-                credentialsId: "github-creds"
+                checkout scm
             }
         }
         stage('Build Docker Image') {
