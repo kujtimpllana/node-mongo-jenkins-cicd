@@ -31,7 +31,7 @@ pipeline {
             }
             steps {
                 echo "Building docker image..."
-                sh "cd /api"
+                sh "cd api/"
                 sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ."
             }
         }
