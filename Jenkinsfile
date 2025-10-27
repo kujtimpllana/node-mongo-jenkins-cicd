@@ -33,7 +33,7 @@ pipeline {
                 sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ./api"
             }
         }
-        stage('Jest testing') {
+        stage('Unit testing with Mocha') {
             when {
                 anyOf {
                     changeset "api/**"
@@ -42,15 +42,8 @@ pipeline {
             }
             steps {
                 echo "Running Jest unit tests..."
-                sh "cd ./api"
-                sh "docker run --rm $DOCKER_IMAGE:$IMAGE_TAG npm test"
-            }
-            post {
-                always {
-                    echo "Adding test report info to an xml file..."
-                    sh "junit jest-junit.xml"
-                    
-                }
+                sh "mkdir -p test-results"
+                sh "docker run --rm -v \$(pwd)/test-results:/usr/src/app/test-results $DOCKER_IMAGE:$IMAGE_TAG npm test"
             }
         }
         stage('Push to Docker Hub') {

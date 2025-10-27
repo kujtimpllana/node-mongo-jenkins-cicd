@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha"
+    "test": "mocha --reporter mocha-junit-reporter --reporter-options mochaFile=./test-results/results.xml"
   },
   "dependencies": {
     "express": "^4",
