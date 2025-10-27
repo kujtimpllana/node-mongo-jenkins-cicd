@@ -13,10 +13,12 @@
   },
   "jest": {
     "testResultsProcessor": "jest-junit"
-  }, 
+  },
   "dependencies": {
     "express": "^4",
     "mongoose": "^8",
-    "dotenv": "^16"
+    "dotenv": "^16",
+    "jest": "^30.2.0",
+    "jest-junit": "^16.0.0"
   }
 }
