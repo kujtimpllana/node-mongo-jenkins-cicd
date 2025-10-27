@@ -28,7 +28,7 @@ pipeline {
             }
             steps {
                 echo "Building docker image..."
-                sh "cd api/"
+                sh "cd ./api"
                 sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ."
             }
         }
@@ -41,7 +41,7 @@ pipeline {
             }
             steps {
                 echo "Running Jest unit tests..."
-                sh "cd /api"
+                sh "cd ./api"
                 sh "docker run --rm -v $WORKSPACE:/app $DOCKER_IMAGE:$IMAGE_TAG npm test"
             }
             post {
