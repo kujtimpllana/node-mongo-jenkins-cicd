@@ -4,8 +4,16 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "jest"
   },
+  "jest-junit": {
+    "outputFile": "jest-junit.xml",
+    "outputDirectory": "."
+  },
+  "jest": {
+    "testResultsProcessor": "jest-junit"
+  }, 
   "dependencies": {
     "express": "^4",
     "mongoose": "^8",
