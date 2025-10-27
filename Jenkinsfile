@@ -9,22 +9,15 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            when {
-                anyOf {
-                    changeset "api/**"
-                    triggeredBy 'UserIdCause'
-                }
+            steps {
+                checkout scm
             }
             // steps {
             //     echo "Checking out into GitHub Repo..."
             //     git branch: "main",
             //     url: "https://github.com/kujtimpllana/node-mongo-jenkins-cicd.git",
             //     credentialsId: "github-creds"
-            // }
-
-            steps {
-                checkout scm
-            }
+            // }  
         }
         stage('Build Docker Image') {
             when {
