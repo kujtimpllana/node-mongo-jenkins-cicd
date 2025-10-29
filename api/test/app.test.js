@@ -1,5 +1,5 @@
-const chai = require("chai");
-const expect = chai.expect;
+import { expect as _expect } from "chai";
+const expect = _expect;
 
 describe("Basic App Test", () => {
   it("should return true for true", () => {
