@@ -12,6 +12,7 @@
     "mongoose": "^8",
     "dotenv": "^16",
     "mocha": "^10.2.0",
-    "chai": "^4.3.7"
+    "chai": "^4.3.7",
+    "mocha-junit-reporter": "^2.0.0"
   }
 }
