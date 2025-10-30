@@ -43,7 +43,15 @@ pipeline {
             steps {
                 echo "Running Jest unit tests..."
                 sh "mkdir -p test-results"
-                sh "docker run --rm -v \$(pwd)/test-results:/usr/src/app/test-results $DOCKER_IMAGE:$IMAGE_TAG npm test"
+                sh """
+                docker run --rm \
+                -v \$(pwd)/test-results:/usr/src/app/test-results \
+                -w /usr/src/app \
+                $DOCKER_IMAGE:$IMAGE_TAG \ 
+                npm test
+                """
+
+                junit 'test-results/results.xml'
             }
         }
         stage('Push to Docker Hub') {
