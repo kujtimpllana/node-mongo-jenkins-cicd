@@ -4,5 +4,5 @@ metadata:
   name: node-mongo-config
 data:
   DB_PORT: "27017"
-  DB_NAME: testdb
-  MONGO_DB_SERVER: mongodb
+  DB_NAME: "testdb"
+  MONGO_DB_SERVER: "mongodb-service"
