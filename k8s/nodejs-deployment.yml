@@ -29,6 +29,11 @@ spec:
                 secretKeyRef:
                   name: node-mongo-secret
                   key: DB_PASS
+            - name: MONGO_DB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: node-mongo-config
+                  key: MONGO_DB_SERVER
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
