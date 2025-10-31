@@ -13,7 +13,7 @@ spec:
         app: nodejs-app
     spec:
       containers:
-        - name: nodejs
+        - name: nodejs-container
           image: kujtimpllana/node-app
           imagePullPolicy: IfNotPresent
           ports:
