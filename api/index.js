@@ -9,7 +9,7 @@ app.use(express.json());
 // Connect to MongoDB
 mongoose
   .connect(
-    `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@mongo:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`
+    `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@mongodb-service:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`
   )
   .then(() => console.log("Mongo connected"))
   .catch(console.error);
