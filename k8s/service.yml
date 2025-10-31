@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: node-mongo-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: node-mongo
   ports:
     - name: http
       port: 3000
       targetPort: 3000
-      nodePort: 30123

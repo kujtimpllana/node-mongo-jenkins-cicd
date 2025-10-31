@@ -98,7 +98,6 @@ spec:
                 secretKeyRef:
                   name: node-mongo-secret
                   key: ME_PASS
-
       volumes:
         - name: mongo-storage
           persistentVolumeClaim:
