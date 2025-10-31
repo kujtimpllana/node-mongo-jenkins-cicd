@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: node-mongo-config
 data:
-  DB_PORT: 27017
+  DB_PORT: "27017"
   MONGO_DB_SERVER: mongodb
