@@ -31,8 +31,8 @@ spec:
                   key: DB_PASS
             - name: DB_NAME
               valueFrom:
-                secretKeyRef:
-                  name: node-mongo-secret
+                configMapKeyRef:
+                  name: node-mongo-config
                   key: DB_NAME
             - name: DB_PORT
               valueFrom:

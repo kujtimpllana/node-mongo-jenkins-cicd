@@ -30,8 +30,8 @@ spec:
                   key: MONGO_INITDB_ROOT_PASSWORD
             - name: MONGO_INITDB_DATABASE
               valueFrom:
-                secretKeyRef:
-                  name: node-mongo-secret
+                configMapKeyRef:
+                  name: node-mongo-config
                   key: DB_NAME
 
           volumeMounts:
