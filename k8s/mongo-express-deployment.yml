@@ -33,11 +33,6 @@ spec:
                 secretKeyRef:
                   name: node-mongo-secret
                   key: MONGO_INITDB_ROOT_PASSWORD
-            - name: ME_CONFIG_MONGODB_SERVER
-              valueFrom:
-                secretKeyRef:
-                  name: node-mongo-secret
-                  key: MONGO_INITDB_ROOT_PASSWORD
             - name: ME_CONFIG_BASICAUTH_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -48,6 +43,11 @@ spec:
                 secretKeyRef:
                   name: node-mongo-secret
                   key: ME_PASS
+            - name: ME_CONFIG_MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: node-mongo-config
+                  key: DB_PORT
 
 ---
 apiVersion: v1
