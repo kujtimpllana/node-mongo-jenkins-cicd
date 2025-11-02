@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo-express-deployment
+  name: mongo-express-deployment-v2
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: mongo-express
-      version: v1
+      version: v2
   template:
     metadata:
       labels:
         app: mongo-express
-        version: v1
+        version: v2
     spec:
       containers:
         - name: mongo-express-container

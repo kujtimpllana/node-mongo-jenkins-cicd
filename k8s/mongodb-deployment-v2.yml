@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb-deployment
+  name: mongodb-deployment-v2
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: mongo-db
-      version: v1
+      version: v2
   template:
     metadata:
       labels:
         app: mongo-db
-        version: v1
+        version: v2
     spec:
       containers:
         - name: mongo-db-container
