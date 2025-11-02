@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb-deplyoment
+  name: mongodb-deployment
 spec:
   replicas: 1
   selector:
@@ -61,7 +61,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb-deplyoment-v2
+  name: mongodb-deployment-v2
 spec:
   replicas: 1
   selector:

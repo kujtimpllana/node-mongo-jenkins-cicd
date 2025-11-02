@@ -132,6 +132,12 @@ pipeline {
             }
         }
         stage('Blue-Green Deployment') {
+            when {
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
+            }
             steps {
                 echo "Route the traffic to version 2 of the app & delete the version 1..."
                 
@@ -150,7 +156,6 @@ pipeline {
                     sh "kubectl delete deployment mongodb-deployment --kubeconfig=${KUBECONFIG} || true"
                     sh "kubectl delete deployment mongo-express-deployment --kubeconfig=${KUBECONFIG} || true"
                     
-                    kubectl set image deployment/nodejs-deployment-v2 nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
                     kubectl rollout status deployment/nodejs-deployment-v2 --kubeconfig=${KUBECONFIG}
                 """
                 
