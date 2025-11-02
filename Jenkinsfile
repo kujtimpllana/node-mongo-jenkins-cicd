@@ -131,6 +131,31 @@ pipeline {
                 """
             }
         }
+        stage('Blue-Green Deployment') {
+            steps {
+                echo "Route the traffic to version 2 of the app & delete the version 1..."
+                
+                sh """
+                    kubectl patch service nodejs-service \
+                    -p '{"spec":{"selector":{"app":"nodejs-app","version":"v2"}}}' \
+                    --kubeconfig=${KUBECONFIG}
+                    kubectl patch service mongodb-service \
+                    -p '{"spec":{"selector":{"app":"mongo-db","version":"v2"}}}' \
+                    --kubeconfig=${KUBECONFIG}
+                    kubectl patch service mongo-express-service \
+                    -p '{"spec":{"selector":{"app":"mongo-express","version":"v2"}}}' \
+                    --kubeconfig=${KUBECONFIG}
+                    
+                    sh "kubectl delete deployment nodejs-deployment --kubeconfig=${KUBECONFIG} || true"
+                    sh "kubectl delete deployment mongodb-deployment --kubeconfig=${KUBECONFIG} || true"
+                    sh "kubectl delete deployment mongo-express-deployment --kubeconfig=${KUBECONFIG} || true"
+                    
+                    kubectl set image deployment/nodejs-deployment-v2 nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
+                    kubectl rollout status deployment/nodejs-deployment-v2 --kubeconfig=${KUBECONFIG}
+                """
+                
+            }
+        }
     }
 
     post {
