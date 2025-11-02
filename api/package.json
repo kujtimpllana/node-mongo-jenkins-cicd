@@ -13,9 +13,10 @@
     "express": "^4",
     "mocha": "^10.2.0",
     "mocha-junit-reporter": "^2.0.0",
-    "mongoose": "^8"
+    "mongoose": "^8",
+    "cross-spawn": "6.0.6"
   },
   "overrides": {
-    "cross-spawn": "7.0.5"
+    "cross-spawn": "6.0.6"
   }
 }
