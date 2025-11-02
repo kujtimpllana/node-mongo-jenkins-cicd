@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY package-lock.json package.json ./
 
-RUN npm ci
+RUN npm ci && npm install cross-spawn@7.0.5
 
 COPY . .
 
