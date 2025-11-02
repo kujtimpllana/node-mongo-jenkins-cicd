@@ -1,8 +1,8 @@
-FROM node:20-bullseye-slim
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-COPY package*.json .
+COPY package-lock.json package.json ./
 
 RUN npm ci
 
