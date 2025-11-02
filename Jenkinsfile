@@ -2,22 +2,22 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "kujtimpllana/node-app"
-        IMAGE_TAG = "${GIT_COMMIT}"
-        KUBECONFIG = "${env.HOME}/.kube/config"
+        DOCKERHUB_USER = "kujtimpllana"
+        APP_NAME = "node-app"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
             // steps {
-            //     echo "Checking out into GitHub Repo..."
-            //     git branch: "main",
-            //     url: "https://github.com/kujtimpllana/node-mongo-jenkins-cicd.git",
-            //     credentialsId: "github-creds"
-            // }  
+            //     checkout scm
+            // }
+            steps {
+                echo "Checking out into GitHub Repo..."
+                git branch: "main",
+                    url: "https://github.com/kujtimpllana/node-mongo-jenkins-cicd.git",
+                    credentialsId: "github-creds"
+            }  
         }
         stage('Build Docker Image') {
             when {
@@ -28,9 +28,45 @@ pipeline {
             }
             steps {
                 echo "Building docker image..."
-                sh "cd ./api"
-                sh "ls"
-                sh "docker build -t $DOCKER_IMAGE:$IMAGE_TAG ./api"
+                script {
+                    COMMIT_ID = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                }
+                //force to install fresh package.json & package-lock json files to ensure the version without CVE vulnerability is being ran on the image
+                sh """
+                    docker build --no-cache -t ${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} ./api
+                """
+            }
+        }
+        stage('Image Testing with Trivy') {
+            when {
+                anyOf {
+                    changeset "api/**"
+                    triggeredBy 'UserIdCause'
+                }
+            }
+            steps {
+                echo "Testing the image before pushing for any potential security issues using Trivy..."
+                
+                script {
+                    sh "mkdir -p ${WORKSPACE}/trivy-results"
+                    try {
+                        sh """
+                        docker pull aquasec/trivy:latest
+                        docker run --rm \
+                            -v /var/run/docker.sock:/var/run/docker.sock \
+                            -v ${WORKSPACE}/trivy-results:/app \
+                            -w /app \
+                            aquasec/trivy:latest image \
+                            --exit-code 1 \
+                            --severity HIGH,CRITICAL \
+                            --format json \
+                            --output trivy-report.json \
+                            ${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID}
+                        """
+                    } finally {
+                        archiveArtifacts artifacts: 'trivy-results/trivy-report.json', allowEmptyArchive: true
+                    }
+                }              
             }
         }
         stage('Unit testing with Mocha') {
@@ -41,17 +77,18 @@ pipeline {
                 }
             }
             steps {
-                echo "Running Jest unit tests..."
-                sh "mkdir -p test-results"
                 sh """
-                docker run --rm \
-                -v \$(pwd)/test-results:/usr/src/app/test-results \
-                -w /usr/src/app \
-                $DOCKER_IMAGE:$IMAGE_TAG \ 
-                npm test
-                """
+                    cd api
+                    rm -rf test-results
+                    mkdir -p test-results
 
-                junit 'test-results/results.xml'
+                    docker run --rm \
+                      -v \$PWD/test-results:/usr/src/app/test-results \
+                      -w /usr/src/app \
+                      ${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} \
+                      npm test
+                """
+                junit 'api/test-results/results.xml'
             }
         }
         stage('Push to Docker Hub') {
@@ -62,11 +99,13 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: "dockerhub-creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    echo "Pushing image $DOCKER_IMAGE:$IMAGE_TAG to DockerHub...}"
-                    sh "docker push $DOCKER_IMAGE:$IMAGE_TAG"
-                    sh "docker logout || true"
+                withCredentials([usernamePassword(credentialsId: "dockerhub_creds", usernameVariable: "DOCKER_USER", passwordVariable: "DOCKER_PASS")]) {
+                    sh """
+                    echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+                    echo Pushing image ${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} to DockerHub...}
+                    docker push ${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID}
+                    docker logout || true
+                    """
                 }
             }
         }
@@ -79,12 +118,17 @@ pipeline {
             }
             steps {
                 echo "Deploying to local K8s cluster..."
-                sh "kubectl set image deployment/node-mongo-deployment node-app=$DOCKER_IMAGE:$IMAGE_TAG --kubeconfig=$KUBECONFIG"
-                sh "kubectl apply -f k8s/mongo-pv-pvc.yml --kubeconfig=$KUBECONFIG"
-                sh "kubectl apply -f k8s/deployment.yml --kubeconfig=$KUBECONFIG"
-                sh "kubectl apply -f k8s/service.yml --kubeconfig=$KUBECONFIG"
+                sh """
+                kubectl apply -f k8s/mongo-pv-pvc.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/configmap.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/secrets.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/nodejs-deployment.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/mongodb-deployment.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/mongo-express-deployment.yml --kubeconfig=${KUBECONFIG}
+                kubectl set image deployment/nodejs-deployment nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
                 echo "Verify pod creation..."
-                sh "kubectl get pods --kubeconfig=$KUBECONFIG"
+                kubectl get pods --kubeconfig=${KUBECONFIG}
+                """
             }
         }
     }

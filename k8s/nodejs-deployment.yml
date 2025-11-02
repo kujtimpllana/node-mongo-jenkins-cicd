@@ -7,10 +7,12 @@ spec:
   selector:
     matchLabels:
       app: nodejs-app
+      version: v1
   template:
     metadata:
       labels:
         app: nodejs-app
+        version: v1
     spec:
       containers:
         - name: nodejs-container
@@ -57,3 +59,53 @@ spec:
     - port: 3000
       targetPort: 3000
   type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-deployment-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: nodejs-app
+        version: v2
+    spec:
+      containers:
+        - name: nodejs-container
+          image: kujtimpllana/node-app
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: node-mongo-secret
+                  key: DB_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: node-mongo-secret
+                  key: DB_PASS
+            - name: MONGO_DB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: node-mongo-config
+                  key: MONGO_DB_SERVER
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: node-mongo-config
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: node-mongo-config
+                  key: DB_NAME
