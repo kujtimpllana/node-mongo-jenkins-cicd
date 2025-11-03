@@ -122,10 +122,13 @@ pipeline {
                 kubectl apply -f k8s/mongo-pv-pvc.yml --kubeconfig=${KUBECONFIG}
                 kubectl apply -f k8s/configmap.yml --kubeconfig=${KUBECONFIG}
                 kubectl apply -f k8s/secrets.yml --kubeconfig=${KUBECONFIG}
-                kubectl apply -f k8s/nodejs-deployment.yml --kubeconfig=${KUBECONFIG}
-                kubectl apply -f k8s/mongodb-deployment.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/node-deployment-1.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/mongo-deployment.yml --kubeconfig=${KUBECONFIG}
                 kubectl apply -f k8s/mongo-express-deployment.yml --kubeconfig=${KUBECONFIG}
-                kubectl set image deployment/nodejs-deployment nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/nodejs-service.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/mongodb-service.yml --kubeconfig=${KUBECONFIG}
+                kubectl apply -f k8s/mongo-express-service.yml --kubeconfig=${KUBECONFIG}
+                kubectl set image deployment/nodejs-deployment-v1 nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
                 echo "Verify pod creation..."
                 kubectl get pods --kubeconfig=${KUBECONFIG}
                 """
@@ -139,26 +142,24 @@ pipeline {
                 }
             }
             steps {
+                echo "Create v2 of the application..."
+                
+                sh """
+                    kubectl apply -f k8s/node-deployment-2.yml --kubeconfig=${KUBECONFIG}
+                """
+               
                 echo "Route the traffic to version 2 of the app & delete the version 1..."
                 
                 sh """
                     kubectl patch service nodejs-service \
                     -p '{"spec":{"selector":{"app":"nodejs-app","version":"v2"}}}' \
                     --kubeconfig=${KUBECONFIG}
-                    kubectl patch service mongodb-service \
-                    -p '{"spec":{"selector":{"app":"mongo-db","version":"v2"}}}' \
-                    --kubeconfig=${KUBECONFIG}
-                    kubectl patch service mongo-express-service \
-                    -p '{"spec":{"selector":{"app":"mongo-express","version":"v2"}}}' \
-                    --kubeconfig=${KUBECONFIG}
                     
-                    sh "kubectl delete deployment nodejs-deployment --kubeconfig=${KUBECONFIG} || true"
-                    sh "kubectl delete deployment mongodb-deployment --kubeconfig=${KUBECONFIG} || true"
-                    sh "kubectl delete deployment mongo-express-deployment --kubeconfig=${KUBECONFIG} || true"
-                    
+                    kubectl delete deployment nodejs-deployment-v1 --kubeconfig=${KUBECONFIG} || true
+
+                    kubectl set image deployment/nodejs-deployment-v2 nodejs-container=${DOCKERHUB_USER}/${APP_NAME}:${COMMIT_ID} --kubeconfig=${KUBECONFIG}
                     kubectl rollout status deployment/nodejs-deployment-v2 --kubeconfig=${KUBECONFIG}
                 """
-                
             }
         }
     }
